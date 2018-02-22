@@ -10,7 +10,7 @@ from models import *
 import bcrypt
 from datetime import datetime
 
-EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+
 
 def index(request):
 	print "index"
@@ -43,24 +43,24 @@ def register(request):
 		last_name = request.POST['last_name']
 		email = request.POST['email'].lower()
 		password = request.POST['password']	
-		if EMAIL_REGEX.match(request.POST['email']):
-			
-			hash1 = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
-			parsed_date = datetime.strptime(request.POST['birthday'], "%Y-%m-%d")
-			
-			try:
-				User.objects.create(first_name=first_name, last_name=last_name, email=email, password=hash1, birthday=parsed_date)
 
-			except IntegrityError as e:
-				if 'constraint' in e.message:
-					print "ERROR"
-				return redirect('/loginregister')			
-			request.session['id']=User.objects.get(email=email).id
 			
-			return redirect('/loginregister/success')
-		else:
-			print "EMAIL FORM INCORRECt"				 
+		hash1 = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+		parsed_date = datetime.strptime(request.POST['birthday'], "%Y-%m-%d")
+			
+		try:
+			User.objects.create(first_name=first_name, last_name=last_name, email=email, password=hash1, birthday=parsed_date)
+
+		except IntegrityError as e:
+			if 'constraint' in e.message:
+				messages.warning(request, "Email already taken")
+			return redirect('/loginregister')			
+		request.session['id']=User.objects.get(email=email).id
+			
+		return redirect('/loginregister/success')
+
 	return redirect('/loginregister')
 
 def login(request):	

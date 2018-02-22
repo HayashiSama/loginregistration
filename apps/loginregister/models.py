@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from django.db import models
 from datetime import datetime
+import re
 
-
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 
 class UserManager(models.Manager):
@@ -16,6 +17,8 @@ class UserManager(models.Manager):
 				errors['birthday'] = "Birthday must be before today"
 		else:
 			errors['birthday'] = "Birthday must be filled in"
+		if(not EMAIL_REGEX.match(postData['email'].lower())):
+			errors['email'] = "Invalid email"
 
 		if len(postData['first_name'])<2:
 			errors['first_name'] = "First name should be more than 2 characters"
